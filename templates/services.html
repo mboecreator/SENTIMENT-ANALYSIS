@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - SentimentScope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f8fafd;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255,255,255,0.97);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(44,83,100,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #00bfae;
+            text-decoration: none;
+        }
+        .navbar {
+            display: flex;
+            gap: 2rem;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: #223344;
+            font-weight: 500;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .navbar a:hover {
+            color: #00bfae;
+        }
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #00bfae;
+            transition: width 0.2s;
+        }
+        .navbar a:hover::after {
+            width: 100%;
+        }
+        .services-hero {
+            background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
+            color: #fff;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .services-hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        .services-hero p {
+            font-size: 1.2rem;
+            color: #e0f7fa;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .services-container {
+            max-width: 1200px;
+            margin: -40px auto 4rem;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .service-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 32px rgba(44,83,100,0.08);
+            padding: 2.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 40px rgba(44,83,100,0.12);
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00bfae, #008e76);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+        }
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+        .service-icon {
+            font-size: 2.5rem;
+            color: #00bfae;
+            margin-bottom: 1.5rem;
+        }
+        .service-card h3 {
+            color: #223344;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .service-card p {
+            color: #607d8b;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .service-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .service-features li {
+            color: #607d8b;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .service-features li i {
+            color: #00bfae;
+            font-size: 0.9rem;
+        }
+        .pricing-section {
+            background: #fff;
+            padding: 4rem 0;
+            margin-top: 2rem;
+        }
+        .pricing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .pricing-header h2 {
+            color: #223344;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        .pricing-header p {
+            color: #607d8b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .pricing-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 32px rgba(44,83,100,0.08);
+            padding: 2.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 2px solid transparent;
+        }
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: #00bfae;
+        }
+        .pricing-card h3 {
+            color: #223344;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .price {
+            font-size: 2.5rem;
+            color: #00bfae;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        .price span {
+            font-size: 1rem;
+            color: #607d8b;
+            font-weight: 400;
+        }
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+        }
+        .pricing-features li {
+            color: #607d8b;
+            margin-bottom: 0.8rem;
+        }
+        .pricing-btn {
+            background: #00bfae;
+            color: #fff;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .pricing-btn:hover {
+            background: #008e76;
+            transform: translateY(-2px);
+        }
+        .footer {
+            background: #0f2027;
+            color: #b0bec5;
+            padding: 40px 0 20px;
+            text-align: center;
+        }
+        .footer-links {
+            margin-bottom: 18px;
+        }
+        .footer-links a {
+            color: #00bfae;
+            margin: 0 12px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover {
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            .services-hero h1 {
+                font-size: 2rem;
+            }
+            .services-container {
+                margin: -20px 1rem 2rem;
+            }
+            .service-card {
+                padding: 1.5rem;
+            }
+            .pricing-section {
+                padding: 2rem 0;
+            }
+            .pricing-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="{{ url_for('index') }}" class="logo">
+            <i class="fas fa-wave-square"></i>
+            <span>SentimentScope</span>
+        </a>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('services') }}">Services</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </nav>
+    </header>
+
+    <section class="services-hero">
+        <h1>Our Services</h1>
+        <p>Discover our comprehensive suite of sentiment analysis tools designed to help you understand and leverage emotional insights from your data.</p>
+    </section>
+
+    <div class="services-container">
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h3>Real-time Sentiment Analysis</h3>
+                <p>Analyze text sentiment in real-time with our advanced AI models. Get instant insights into the emotional tone of any text.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Instant analysis results</li>
+                    <li><i class="fas fa-check"></i> High accuracy detection</li>
+                    <li><i class="fas fa-check"></i> Multiple language support</li>
+                    <li><i class="fas fa-check"></i> Customizable thresholds</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Emotion Analytics</h3>
+                <p>Go beyond basic sentiment to understand specific emotions in your text data. Track and analyze emotional patterns over time.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Detailed emotion breakdown</li>
+                    <li><i class="fas fa-check"></i> Trend visualization</li>
+                    <li><i class="fas fa-check"></i> Historical analysis</li>
+                    <li><i class="fas fa-check"></i> Custom emotion tracking</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Batch Processing</h3>
+                <p>Process large volumes of text data efficiently. Upload files or connect to your data sources for bulk sentiment analysis.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Bulk file processing</li>
+                    <li><i class="fas fa-check"></i> Multiple file formats</li>
+                    <li><i class="fas fa-check"></i> Progress tracking</li>
+                    <li><i class="fas fa-check"></i> Export capabilities</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <section class="pricing-section">
+        <div class="pricing-container">
+            <div class="pricing-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that best fits your needs. All plans include our core sentiment analysis features.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$29<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>1,000 analyses per month</li>
+                        <li>Basic sentiment analysis</li>
+                        <li>Email support</li>
+                        <li>CSV export</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="pricing-btn">Get Started</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Professional</h3>
+                    <div class="price">$79<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>5,000 analyses per month</li>
+                        <li>Advanced emotion analysis</li>
+                        <li>Priority support</li>
+                        <li>API access</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="pricing-btn">Get Started</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">$199<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Unlimited analyses</li>
+                        <li>Custom AI models</li>
+                        <li>24/7 support</li>
+                        <li>Advanced integrations</li>
+                    </ul>
+                    <a href="{{ url_for('contact') }}" class="pricing-btn">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="{{ url_for('services') }}">Services</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+        <div>
+            &copy; 2025 SentimentScope. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Visualization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            color: var(--text-dark);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1.5px solid var(--primary-color);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--primary-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(44,83,100,0.06);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            color: var(--text-dark);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .trend {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(44,83,100,0.06);
+        }
+
+        .chart-card h3 {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(44,83,100,0.06);
+            margin-bottom: 2rem;
+        }
+
+        .timeline-card h3 {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="{{ url_for('dashboard') }}" class="logo">
+            <i class="fas fa-chart-line"></i>
+            Sentiment Analysis
+        </a>
+        <nav class="navbar">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('services') }}">Services</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Sentiment Analysis Visualization</h1>
+            <p>View detailed insights and trends from your sentiment analysis data</p>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active">All Time</button>
+            <button class="filter-btn">Last 7 Days</button>
+            <button class="filter-btn">Last 30 Days</button>
+            <button class="filter-btn">Custom Range</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Analyses</h3>
+                <div class="value">{{ total_analyses }}</div>
+                <div class="trend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12% from last month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Positive Sentiment</h3>
+                <div class="value">{{ positive_percentage }}%</div>
+                <div class="trend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>8% from last month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Neutral Sentiment</h3>
+                <div class="value">{{ neutral_percentage }}%</div>
+                <div class="trend">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>3% from last month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Negative Sentiment</h3>
+                <div class="value">{{ negative_percentage }}%</div>
+                <div class="trend">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>5% from last month</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Sentiment Distribution</h3>
+                <canvas id="sentimentChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Emotion Analysis</h3>
+                <canvas id="emotionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="timeline-card">
+            <h3>Sentiment Trends Over Time</h3>
+            <canvas id="timelineChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Sentiment Distribution Chart
+        const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+        new Chart(sentimentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Positive', 'Neutral', 'Negative'],
+                datasets: [{
+                    data: [{{ positive_count }}, {{ neutral_count }}, {{ negative_count }}],
+                    backgroundColor: ['#00bfae', '#607d8b', '#ff5252'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Emotion Analysis Chart
+        const emotionCtx = document.getElementById('emotionChart').getContext('2d');
+        new Chart(emotionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Joy', 'Sadness', 'Anger', 'Fear', 'Surprise'],
+                datasets: [{
+                    label: 'Emotion Count',
+                    data: [
+                        {{ emotion_counts.joy }},
+                        {{ emotion_counts.sadness }},
+                        {{ emotion_counts.anger }},
+                        {{ emotion_counts.fear }},
+                        {{ emotion_counts.surprise }}
+                    ],
+                    backgroundColor: '#00bfae',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Timeline Chart
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: {{ timeline_dates|tojson }},
+                datasets: [{
+                    label: 'Positive',
+                    data: {{ timeline_positive|tojson }},
+                    borderColor: '#00bfae',
+                    tension: 0.4
+                }, {
+                    label: 'Neutral',
+                    data: {{ timeline_neutral|tojson }},
+                    borderColor: '#607d8b',
+                    tension: 0.4
+                }, {
+                    label: 'Negative',
+                    data: {{ timeline_negative|tojson }},
+                    borderColor: '#ff5252',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Filter button functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Add AJAX call here to update charts based on selected time range
+            });
+        });
+    </script>
+</body>
+</html> 

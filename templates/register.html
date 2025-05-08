@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SentimentScope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .register-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 32px rgba(44,83,100,0.13);
+            padding: 36px 28px 28px 28px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+        }
+        .register-card .logo {
+            color: #00bfae;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+        .register-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #263238;
+        }
+        .register-card p {
+            color: #607d8b;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #263238;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1.5px solid #e0e7ff;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #263238;
+            background: #f8fafc;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .input-group input:focus {
+            border-color: #00bfae;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0,191,174,0.1);
+        }
+        .input-group .icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #607d8b;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .input-group input:focus + .icon {
+            color: #00bfae;
+        }
+        .register-btn {
+            width: 100%;
+            background: #00bfae;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 6px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .register-btn:hover {
+            background: #008e76;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,191,174,0.2);
+        }
+        .login-link {
+            color: #00bfae;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .login-link:hover {
+            color: #008e76;
+        }
+        .alert {
+            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        .alert-success {
+            background: #e0f7fa;
+            color: #008e76;
+            border: 1px solid #b2ebf2;
+        }
+        @media (max-width: 500px) {
+            .register-card {
+                padding: 28px 16px 20px 16px;
+                margin: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <div class="logo"><i class="fas fa-wave-square"></i></div>
+        <h2>Create Account</h2>
+        <p>Join SentimentScope to start analyzing text sentiment.</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form action="{{ url_for('register') }}" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-group">
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    <i class="fas fa-user icon"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-group">
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    <i class="fas fa-envelope icon"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" placeholder="Create a password" required>
+                    <i class="fas fa-lock icon"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="input-group">
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                    <i class="fas fa-lock icon"></i>
+                </div>
+            </div>
+            <button type="submit" class="register-btn">Create Account</button>
+        </form>
+        <div style="margin-top: 16px;">
+            <span style="color: #607d8b;">Already have an account? </span>
+            <a href="{{ url_for('login') }}" class="login-link">Sign In</a>
+        </div>
+    </div>
+</body>
+</html> 

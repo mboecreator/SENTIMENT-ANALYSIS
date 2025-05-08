@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SentimentScope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            background: #f8fafd;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+        }
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
+            color: #fff;
+            width: 240px;
+            min-height: 100vh;
+            padding: 32px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .logo {
+            font-size: 1.8rem;
+            color: #00bfae;
+            margin-bottom: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .sidebar nav {
+            width: 100%;
+        }
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #b0bec5;
+            text-decoration: none;
+            font-size: 1.03rem;
+            font-weight: 500;
+            padding: 14px 32px;
+            transition: background 0.18s, color 0.18s;
+        }
+        .sidebar nav a.active, .sidebar nav a:hover {
+            background: #00bfae;
+            color: #fff;
+        }
+        .sidebar nav a i {
+            font-size: 1.2rem;
+        }
+        .main-content {
+            flex: 1;
+            padding: 40px 5vw 40px 5vw;
+            background: #f8fafd;
+        }
+        .section {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(44,83,100,0.07);
+            padding: 32px 28px;
+            margin-bottom: 32px;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #263238;
+            margin-bottom: 18px;
+        }
+        .quick-check-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        .quick-check-form textarea {
+            flex: 1 1 320px;
+            min-height: 60px;
+            border-radius: 8px;
+            border: 1.5px solid #b0bec5;
+            padding: 12px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        .quick-check-form button {
+            background: #00bfae;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .quick-check-form button:hover {
+            background: #008e76;
+        }
+        .result-box {
+            margin-top: 18px;
+            padding: 18px;
+            background: #e0f7fa;
+            border-radius: 10px;
+            color: #263238;
+            font-size: 1.08rem;
+        }
+        .upload-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+        .upload-form input[type="file"] {
+            font-size: 1rem;
+        }
+        .upload-form button {
+            background: #00bfae;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .upload-form button:hover {
+            background: #008e76;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+        .history-table th, .history-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        .history-table th {
+            background: #f0f4f8;
+            color: #263238;
+        }
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        .chart-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-top: 18px;
+        }
+        .chart-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 1px 6px rgba(44,83,100,0.06);
+            padding: 18px 12px;
+            flex: 1 1 320px;
+            min-width: 280px;
+        }
+        .compare-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: flex-end;
+        }
+        .compare-section textarea {
+            flex: 1 1 220px;
+            min-height: 50px;
+            border-radius: 8px;
+            border: 1.5px solid #b0bec5;
+            padding: 10px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        .compare-section button {
+            background: #00bfae;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .compare-section button:hover {
+            background: #008e76;
+        }
+        @media (max-width: 900px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                flex-direction: row;
+                width: 100%;
+                min-height: unset;
+                padding: 16px 0;
+                justify-content: flex-start;
+            }
+            .sidebar nav {
+                display: flex;
+                flex-direction: row;
+                gap: 0;
+            }
+            .sidebar nav a {
+                padding: 10px 18px;
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .main-content {
+                padding: 18px 2vw 18px 2vw;
+            }
+            .section {
+                padding: 18px 8px;
+            }
+        }
+        .chat-bubble {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .user-text {
+            background: #e0f7fa;
+            color: #263238;
+            padding: 10px 16px;
+            border-radius: 16px 16px 4px 16px;
+            max-width: 70%;
+            font-size: 1.05rem;
+            box-shadow: 0 1px 4px rgba(44,83,100,0.07);
+        }
+        .ai-response {
+            background: #00bfae;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 16px 16px 16px 4px;
+            max-width: 80%;
+            font-size: 1.08rem;
+            box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+        }
+        .custom-file-upload {
+            display: inline-block;
+            padding: 12px 24px;
+            cursor: pointer;
+            background: #00bfae;
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background 0.2s;
+            margin-right: 16px;
+        }
+        .custom-file-upload i {
+            margin-right: 8px;
+        }
+        .custom-file-upload input[type="file"] {
+            display: none;
+        }
+        .file-name {
+            font-size: 0.98rem;
+            color: #607d8b;
+            margin-right: 16px;
+        }
+        .upload-hint {
+            margin-top: 8px;
+            color: #607d8b;
+            font-size: 0.97rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .upload-hint i {
+            color: #00bfae;
+        }
+        .br-badge { display: inline-block; padding: 5px 14px; border-radius: 16px; font-size: 0.95rem; font-weight: 600; margin-right: 4px; margin-bottom: 2px; }
+        .br-badge.positive { background: #e0f7fa; color: #00bfae; }
+        .br-badge.neutral { background: #fff8e1; color: #ffc107; }
+        .br-badge.negative { background: #ffebee; color: #dc3545; }
+        .br-badge.emotion { background: #e3f2fd; color: #1565c0; }
+        .styled-history-table tr:hover { background: #f8fafc; transition: background 0.2s; }
+        .input-preview { position: relative; }
+        .input-short, .input-full { display: inline; }
+        .input-full { word-break: break-word; }
+        .show-more, .show-less { color: #00bfae; cursor: pointer; font-weight: 600; text-decoration: underline; font-size: 0.97rem; }
+        .sentiment-badge { font-size: 1.05rem; padding: 7px 18px; display: inline-flex; align-items: center; gap: 7px; }
+        .sentiment-badge.positive { background: #e0f7fa; color: #00bfae; }
+        .sentiment-badge.neutral { background: #fff8e1; color: #ffc107; }
+        .sentiment-badge.negative { background: #ffebee; color: #dc3545; }
+        .emotion-badge { background: #e3f2fd; color: #1565c0; font-size: 0.97rem; margin-bottom: 2px; }
+        .type-badge { font-size: 0.98rem; padding: 6px 14px; }
+        .type-badge.batch { background: #ede7f6; color: #6c5ce7; }
+        .type-badge.single { background: #e8f5e9; color: #2e7d32; }
+        .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #e3f2fd; color: #1565c0; margin-right: 6px; font-size: 1.1rem; transition: background 0.18s, color 0.18s; text-decoration: none; border: none; }
+        .action-btn:hover { background: #00bfae; color: #fff; }
+        .action-btn.delete { background: #ffebee; color: #dc3545; }
+        .action-btn.delete:hover { background: #dc3545; color: #fff; }
+        @media (max-width: 700px) { .styled-history-table td, .styled-history-table th { font-size: 0.97rem; } }
+        .sentiment-row {
+            display: flex;
+            flex-direction: row;
+            gap: 13px;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .sentiment-col {
+            flex: 1 1 0;
+            display: flex;
+            justify-content: center;
+        }
+        .sentiment-col .card {
+            min-width: 260px;
+            max-width: 340px;
+            min-height: 220px;
+            font-size: 1.22rem;
+            box-shadow: 0 2px 16px rgba(44,83,100,0.13);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo"></i> SentimentScope</div>
+            <nav>
+                <a href="{{ url_for('dashboard') }}" class="active">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('visualize') }}">
+                    <i class="fas fa-chart-line"></i>
+                    Visualizations
+                </a>
+                
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <!-- Quick Sentiment Check -->
+            <section class="section" id="quick-check">
+                <div class="section-title">Quick Sentiment Check</div>
+                <form class="quick-check-form" method="POST" action="{{ url_for('analyze') }}">
+                    <textarea name="text" placeholder="Paste text, tweet, or review here..." required></textarea>
+                    <button type="submit"><i class="fas fa-search"></i> Analyze</button>
+                </form>
+                <!-- Result will be shown here -->
+                {% if sentiment_result %}
+                <div class="chat-bubble">
+                    <div class="user-text"><strong>You:</strong> {{ sentiment_result.text }}</div>
+                    <div class="ai-response">
+                        <strong>Sentiment:</strong> {{ sentiment_result.sentiment }}<br>
+                        <strong>Confidence:</strong> {{ sentiment_result.confidence }}<br>
+                        <strong>Emotions:</strong> {{ sentiment_result.emotions }}<br>
+                        <strong>Emojis:</strong> {{ sentiment_result.emojis }}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- Batch Analysis -->
+            <section class="section" id="batch">
+                <div class="section-title">Batch Analysis (Upload CSV/TXT)</div>
+                <form class="upload-form" method="POST" action="{{ url_for('analyze_batch') }}" enctype="multipart/form-data">
+                    <label for="batch-file" class="custom-file-upload">
+                        <i class="fas fa-cloud-upload-alt"></i> Choose CSV or TXT File
+                        <input id="batch-file" type="file" name="file" accept=".csv,.txt" required onchange="updateFileName(this)">
+                    </label>
+                    <span id="file-name" class="file-name">No file chosen</span>
+                    <button type="submit"><i class="fas fa-upload"></i> Upload & Analyze</button>
+                </form>
+                <div class="upload-hint">
+                    <i class="fas fa-info-circle"></i> Accepted formats: .csv, .txt (one text per line or column)
+                </div>
+                <!-- Batch results and charts would be rendered here -->
+                {% if batch_results %}
+                <div class="batch-results-section" style="margin-top:32px;">
+                    <div class="sentiment-row">
+                        <div class="sentiment-col" style="justify-content: flex-start;">
+                            <div class="card" style="background:#e0f7fa; border-radius:12px; padding:18px; text-align:center;">
+                                <div style="font-size:2.2rem; color:#00bfae;"><i class="fas fa-smile"></i></div>
+                                <div style="font-size:1.1rem; color:#263238;">Positive</div>
+                                <div style="font-size:1.5rem; font-weight:700;">{{ batch_results.sentiment_distribution[0] }}</div>
+                            </div>
+                        </div>
+                        <div class="sentiment-col" style="justify-content: center;">
+                            <div class="card" style="background:#fff8e1; border-radius:12px; padding:18px; text-align:center;">
+                                <div style="font-size:2.2rem; color:#ffc107;"><i class="fas fa-meh"></i></div>
+                                <div style="font-size:1.1rem; color:#263238;">Neutral</div>
+                                <div style="font-size:1.5rem; font-weight:700;">{{ batch_results.sentiment_distribution[1] }}</div>
+                            </div>
+                        </div>
+                        <div class="sentiment-col" style="justify-content: flex-end;">
+                            <div class="card" style="background:#ffebee; border-radius:12px; padding:18px; text-align:center;">
+                                <div style="font-size:2.2rem; color:#dc3545;"><i class="fas fa-frown"></i></div>
+                                <div style="font-size:1.1rem; color:#263238;">Negative</div>
+                                <div style="font-size:1.5rem; font-weight:700;">{{ batch_results.sentiment_distribution[2] }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sentiment-charts-row" style="display: flex; flex-direction: row; gap: 32px; justify-content: center; align-items: flex-start; margin: 32px 0 24px 0;">
+                        <div style="background: #fff; border-radius: 18px; box-shadow: 0 2px 16px rgba(44,83,100,0.10); padding: 28px 32px; min-width: 340px; max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                            <div style="font-size: 1.32rem; color: #263238; font-weight: 700; margin-bottom: 24px;">Sentiment Distribution</div>
+                            <div id="batch-sentiment-pie" style="width:420px; height:420px;"></div>
+                        </div>
+                        <div style="background: #fff; border-radius: 18px; box-shadow: 0 2px 16px rgba(44,83,100,0.10); padding: 28px 32px; min-width: 340px; max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                            <div style="font-size: 1.32rem; color: #263238; font-weight: 700; margin-bottom: 24px;">Emotion Frequency</div>
+                            <div id="batch-emotion-bar" style="width:420px; height:420px;"></div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 24px;">
+                        <div class="col-12" style="width:100%;">
+                            <div class="card" style="padding:18px; border-radius:12px;">
+                                <div style="font-size:1.15rem; font-weight:600; margin-bottom:10px; color:#263238;">Detailed Results</div>
+                                <div style="overflow-x:auto;">
+                                    <table class="table table-striped" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Text</th>
+                                                <th>Sentiment</th>
+                                                <th>Emotions</th>
+                                                <th>Emojis</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for r in batch_results.results %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td style="max-width:320px; word-break:break-word;">
+                                                    {% if r.text|length > 80 %}
+                                                        <span class="short-text">{{ r.text[:80] }}...</span>
+                                                        <span class="full-text" style="display:none;">{{ r.text }}</span>
+                                                        <button class="read-more-btn" style="background:none; border:none; color:#00bfae; cursor:pointer; font-weight:600;">Read more</button>
+                                                    {% else %}
+                                                        {{ r.text }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span class="br-badge sentiment-badge {{ r.sentiment }}">
+                                                        {% if r.sentiment == 'positive' %}<i class="fas fa-smile"></i>{% elif r.sentiment == 'negative' %}<i class="fas fa-frown"></i>{% else %}<i class="fas fa-meh"></i>{% endif %}
+                                                        {{ r.sentiment|capitalize }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% for emotion in r.emotions %}
+                                                    <span class="br-badge emotion-badge">{{ emotion|capitalize }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                                <td>
+                                                    {% for emoji in r.emojis %}{{ emoji.emoji }} {% endfor %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Batch Sentiment Pie
+                    Plotly.newPlot('batch-sentiment-pie', [{
+                        values: {{ batch_results.sentiment_distribution|tojson }},
+                        labels: ['Positive', 'Neutral', 'Negative'],
+                        type: 'pie',
+                        marker: {colors: ['#00bfae', '#ffc107', '#dc3545']}
+                    }], {title: '', margin: {t:40}, height: 420});
+                    // Batch Emotion Bar
+                    var emotionDist = {{ batch_results.emotion_distribution|tojson }};
+                    Plotly.newPlot('batch-emotion-bar', [{
+                        x: Object.keys(emotionDist),
+                        y: Object.values(emotionDist),
+                        type: 'bar',
+                        marker: {color: '#1565c0'}
+                    }], {title: '', margin: {t:40}, height: 420});
+                    // Read more/less for detailed results
+                    document.querySelectorAll('.read-more-btn').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            var td = btn.closest('td');
+                            var shortText = td.querySelector('.short-text');
+                            var fullText = td.querySelector('.full-text');
+                            if (shortText.style.display !== 'none') {
+                                shortText.style.display = 'none';
+                                fullText.style.display = 'inline';
+                                btn.textContent = 'Show less';
+                            } else {
+                                shortText.style.display = 'inline';
+                                fullText.style.display = 'none';
+                                btn.textContent = 'Read more';
+                            }
+                        });
+                    });
+                    var batchFileInput = document.getElementById('batch-file');
+                    if (batchFileInput) {
+                        batchFileInput.addEventListener('change', function() {
+                            updateFileName(this);
+                        });
+                    }
+                });
+                </script>
+                {% endif %}
+            </section>
+
+            <!-- Sentiment History -->
+            <section class="section" id="history">
+                <div class="section-title">Sentiment History</div>
+                <table class="history-table styled-history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Input</th>
+                            <th>Sentiment</th>
+                            <th>Emotions</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                            <tr class="history-row{% if loop.index > 3 %} extra-history-row{% endif %}" {% if loop.index > 3 %}style="display:none;"{% endif %}>
+                            <td>{{ item.date }}</td>
+                            <td style="max-width:260px;">
+                                <div class="input-preview">
+                                        <span class="input-short">{{ item.input[:120] }}{% if item.input|length > 120 %}... <a href="javascript:void(0)" class="show-more">Show more</a>{% endif %}</span>
+                                        <span class="input-full" style="display:none;">{{ item.input }} <a href="javascript:void(0)" class="show-less">Show less</a></span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="br-badge sentiment-badge {{ item.sentiment }}">
+                                    {% if item.sentiment == 'positive' %}<i class="fas fa-smile"></i>{% elif item.sentiment == 'negative' %}<i class="fas fa-frown"></i>{% else %}<i class="fas fa-meh"></i>{% endif %}
+                                    {{ item.sentiment|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                {% for emotion in item.emotions.split(',') if item.emotions %}
+                                <span class="br-badge emotion-badge">{{ emotion|capitalize }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if item.is_batch %}
+                                    <span class="br-badge type-badge batch"><i class="fas fa-layer-group"></i> Batch</span>
+                                {% else %}
+                                    <span class="br-badge type-badge single"><i class="fas fa-user"></i> Single</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="#" class="action-btn" title="Download"><i class="fas fa-download"></i></a>
+                                    <form method="POST" action="{{ url_for('delete_history', analysis_id=item.id) }}" style="display:inline;">
+                                        <button type="submit" class="action-btn delete" title="Delete" onclick="return confirm('Are you sure you want to delete this history item?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if history|length > 3 %}
+                <div style="text-align:center; margin-top:12px;">
+                    <button id="view-more-history" style="background:#00bfae; color:#fff; border:none; border-radius:8px; padding:10px 28px; font-size:1.05rem; font-weight:600; cursor:pointer;">View more</button>
+                </div>
+                {% endif %}
+            </section>
+
+            
+
+            <!-- Text Comparison Tool (Optional) -->
+            <section class="section" id="compare">
+                <div class="section-title">Text Comparison Tool</div>
+                <form class="compare-section" method="POST" action="{{ url_for('compare_texts') }}">
+                    <textarea name="text1" placeholder="Original text..." required></textarea>
+                    <textarea name="text2" placeholder="Revised text..." required></textarea>
+                    <button type="submit"><i class="fas fa-exchange-alt"></i> Compare</button>
+                </form>
+                {% if comparison_result %}
+                <div class="result-box">
+                    <strong>Original Sentiment:</strong> {{ comparison_result.original_sentiment }}<br>
+                    <strong>Revised Sentiment:</strong> {{ comparison_result.revised_sentiment }}<br>
+                    <strong>Shift:</strong> {{ comparison_result.shift }}<br>
+                </div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+    <!-- Chart.js for visualizations (optional, for future use) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+    function updateFileName(input) {
+        const fileName = input.files.length > 0 ? input.files[0].name : 'No file chosen';
+        document.getElementById('file-name').textContent = fileName;
+    }
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error('Global JS Error:', message, 'at', source + ':' + lineno + ':' + colno, error);
+    };
+    document.body.addEventListener('click', function(e) {
+        if (e.target.classList.contains('show-more')) {
+            e.preventDefault();
+            console.log("Show more clicked");
+            var preview = e.target.closest('.input-preview');
+            preview.querySelector('.input-short').style.display = 'none';
+            preview.querySelector('.input-full').style.display = 'inline';
+        }
+        if (e.target.classList.contains('show-less')) {
+            e.preventDefault();
+            console.log("Show less clicked");
+            var preview = e.target.closest('.input-preview');
+            preview.querySelector('.input-short').style.display = 'inline';
+            preview.querySelector('.input-full').style.display = 'none';
+        }
+        
+        // Handle view more history button click
+        if (e.target.id === 'view-more-history' || e.target.closest('#view-more-history')) {
+            console.log('View more history clicked');
+            document.querySelectorAll('.extra-history-row').forEach(function(row) {
+                row.style.display = '';
+            });
+            document.getElementById('view-more-history').style.display = 'none';
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we need to scroll to a specific section
+        {% if scroll_to_section %}
+            const sectionToScroll = document.getElementById('{{ scroll_to_section }}');
+            if (sectionToScroll) {
+                sectionToScroll.scrollIntoView({ behavior: 'smooth' });
+            }
+        {% endif %}
+        
+        // Visualization Tools - Plotly charts
+        let history = [];
+        try {
+            history = JSON.parse('{{ history_json|safe }}');
+        } catch (e) {
+            console.error('Failed to parse history_json:', e, 'Raw:', '{{ history_json|safe }}');
+            history = [];
+        }
+        try {
+            if (!history || history.length === 0) {
+                document.getElementById('visualization-charts').style.display = 'none';
+                document.getElementById('visualization-empty-state').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('visualization-charts').style.display = 'block';
+                document.getElementById('visualization-empty-state').style.display = 'none';
+            }
+            // Sentiment Distribution
+            const sentimentCounts = {positive: 0, neutral: 0, negative: 0};
+            history.forEach(item => {
+                if (sentimentCounts[item.sentiment] !== undefined) {
+                    sentimentCounts[item.sentiment]++;
+                }
+            });
+            const sentimentData = [{
+                values: Object.values(sentimentCounts),
+                labels: Object.keys(sentimentCounts),
+                type: 'pie',
+                marker: {colors: ['#00bfae', '#ffc107', '#dc3545']}
+            }];
+            Plotly.newPlot('sentiment-distribution-chart', sentimentData, {title: 'Sentiment Distribution', margin: {t:40}});
+            // Emotion Frequency
+            const emotionCounts = {};
+            history.forEach(item => {
+                if (Array.isArray(item.emotions)) {
+                    item.emotions.forEach(emotion => {
+                        emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
+                    });
+                } else if (typeof item.emotions === 'string' && item.emotions) {
+                    item.emotions.split(',').forEach(emotion => {
+                        emotionCounts[emotion.trim()] = (emotionCounts[emotion.trim()] || 0) + 1;
+                    });
+                }
+            });
+            const emotionData = [{
+                x: Object.keys(emotionCounts),
+                y: Object.values(emotionCounts),
+                type: 'bar',
+                marker: {color: '#1565c0'}
+            }];
+            Plotly.newPlot('emotion-frequency-chart', emotionData, {title: 'Emotion Frequency', margin: {t:40}});
+            // Emoji Usage
+            const emojiCounts = {};
+            history.forEach(item => {
+                if (item.emojis) {
+                    item.emojis.split(',').forEach(emoji => {
+                        if (emoji) emojiCounts[emoji] = (emojiCounts[emoji] || 0) + 1;
+                    });
+                }
+            });
+            const emojiData = [{
+                x: Object.keys(emojiCounts),
+                y: Object.values(emojiCounts),
+                type: 'bar',
+                marker: {color: '#00bfae'}
+            }];
+            Plotly.newPlot('emoji-usage-chart', emojiData, {title: 'Emoji Usage', margin: {t:40}});
+            // Sentiment Trend Over Time
+            const dates = history.map(item => item.date);
+            const sentiments = history.map(item => ({positive: 1, neutral: 0, negative: -1}[item.sentiment]));
+            const trendData = [{
+                x: dates,
+                y: sentiments,
+                mode: 'lines+markers',
+                line: {shape: 'spline', color: '#00bfae'},
+                name: 'Sentiment Trend',
+                hoverinfo: 'x+y'
+            }];
+            Plotly.newPlot('trend-over-time-chart', trendData, {
+                title: 'Sentiment Trend Over Time',
+                yaxis: {tickvals: [-1,0,1], ticktext: ['Negative','Neutral','Positive']},
+                margin: {t:40}
+            });
+        } catch (e) {
+            document.getElementById('visualization-charts').style.display = 'none';
+            document.getElementById('visualization-empty-state').style.display = 'block';
+            console.error('Visualization error:', e);
+        }
+        // View more history functionality is now handled in the document.body click event listener
+    });
+    </script>
+    <!-- Minimal JS test -->
+    <button id="js-test-btn" style="position:fixed;bottom:10px;right:10px;z-index:9999;">JS Test</button>
+    <script>
+    document.getElementById("js-test-btn").onclick = function() {
+        alert("JS is running!");
+    };
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Results - Sentiment Scope{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #f4f8fb; }
+    .br-header {
+        text-align: center;
+        margin-top: 32px;
+        margin-bottom: 16px;
+    }
+    .br-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #00bfae;
+        margin-bottom: 8px;
+    }
+    .br-header p {
+        color: #607d8b;
+        font-size: 1.1rem;
+    }
+    .br-empty {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 2px 16px rgba(44,83,100,0.10);
+        max-width: 520px;
+        margin: 60px auto 0 auto;
+        padding: 48px 32px 40px 32px;
+        text-align: center;
+    }
+    .br-empty .icon {
+        font-size: 3.5rem;
+        color: #00bfae;
+        margin-bottom: 18px;
+    }
+    .br-empty h2 {
+        font-size: 1.3rem;
+        color: #263238;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    .br-empty p {
+        color: #607d8b;
+        margin-bottom: 22px;
+        font-size: 1.05rem;
+    }
+    .br-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #00bfae;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 12px 28px;
+        margin: 0 auto 32px auto;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        text-decoration: none;
+    }
+    .br-back-btn:hover {
+        background: #008e76;
+        transform: translateX(-4px);
+    }
+    .nav-tabs { border-bottom: 2px solid #e0e0e0; margin-bottom: 24px; }
+    .nav-tabs .nav-link { color: #607d8b; font-weight: 600; font-size: 1.08rem; border: none; border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; }
+    .nav-tabs .nav-link.active { color: #00bfae; border-bottom: 3px solid #00bfae; background: none; }
+    .tab-content { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(44,83,100,0.08); padding: 32px 18px; }
+    .br-summary-cards { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 32px; }
+    .br-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(44,83,100,0.08); padding: 24px 32px; min-width: 180px; text-align: center; flex: 1 1 180px; max-width: 220px; }
+    .br-card .br-label { color: #607d8b; font-size: 1rem; margin-bottom: 6px; }
+    .br-card .br-value { font-size: 2.1rem; font-weight: 700; color: #263238; }
+    .br-card.positive .br-value { color: #00bfae; }
+    .br-card.neutral .br-value { color: #ffc107; }
+    .br-card.negative .br-value { color: #dc3545; }
+    .br-charts-row { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; margin-bottom: 36px; }
+    .br-chart-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(44,83,100,0.08); padding: 20px 16px 8px 16px; min-width: 320px; max-width: 420px; flex: 1 1 320px; display: flex; flex-direction: column; align-items: center; }
+    .br-chart-title { font-size: 1.1rem; color: #607d8b; margin-bottom: 8px; font-weight: 600; }
+    .br-table-section { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(44,83,100,0.08); padding: 24px 12px 12px 12px; margin-bottom: 32px; overflow-x: auto; }
+    .br-table-title { font-size: 1.1rem; color: #607d8b; font-weight: 600; margin-bottom: 12px; text-align: center; }
+    .br-table-wrap { max-height: 340px; overflow-y: auto; }
+    table.br-table { width: 100%; border-collapse: collapse; font-size: 1rem; background: #fff; }
+    table.br-table th, table.br-table td { padding: 12px 10px; border-bottom: 1px solid #e0e0e0; text-align: left; vertical-align: top; }
+    table.br-table th { position: sticky; top: 0; background: #f0f4f8; color: #263238; font-weight: 700; z-index: 2; }
+    table.br-table tr:last-child td { border-bottom: none; }
+    .br-badge { display: inline-block; padding: 5px 14px; border-radius: 16px; font-size: 0.95rem; font-weight: 600; margin-right: 4px; margin-bottom: 2px; }
+    .br-badge.positive { background: #e0f7fa; color: #00bfae; }
+    .br-badge.neutral { background: #fff8e1; color: #ffc107; }
+    .br-badge.negative { background: #ffebee; color: #dc3545; }
+    .br-badge.emotion { background: #e3f2fd; color: #1565c0; }
+    .br-emoji-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .br-emoji-item { font-size: 1.2rem; background: #f0f4f8; padding: 3px 8px; border-radius: 8px; }
+    .br-text-cell { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; position: relative; }
+    .br-text-cell[title]:hover::after { content: attr(title); position: absolute; left: 0; top: 100%; background: #fff; color: #263238; border: 1px solid #b0bec5; border-radius: 8px; padding: 8px 12px; white-space: normal; z-index: 10; min-width: 200px; box-shadow: 0 2px 8px rgba(44,83,100,0.12); }
+    @media (max-width: 900px) { .br-summary-cards, .br-charts-row { flex-direction: column; align-items: center; } .br-card, .br-chart-card { max-width: 100%; min-width: 0; width: 100%; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="br-header">
+        <h1>Batch Analysis Results</h1>
+        <p>See the sentiment and emotion breakdown for your uploaded texts.</p>
+    </div>
+    {% if not batch_results or not batch_results.results or batch_results.results|length == 0 %}
+    <div class="br-empty">
+        <div class="icon"><i class="fas fa-inbox"></i></div>
+        <h2>No Results to Display</h2>
+        <p>It looks like you haven't uploaded any texts for batch analysis yet, or your session has expired.<br>Try uploading a file or pasting text for analysis.</p>
+        <a href="{{ url_for('batch') }}" class="br-back-btn"><i class="fas fa-arrow-left"></i> Back to Batch Analysis</a>
+    </div>
+    {% else %}
+    <ul class="nav nav-tabs" id="resultsTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts" type="button" role="tab" aria-controls="charts" aria-selected="false">Charts</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table" type="button" role="tab" aria-controls="table" aria-selected="false">Table</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="resultsTabContent">
+      <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+        <div class="br-summary-cards" style="justify-content: center; gap: 32px; margin-bottom: 0;">
+            <div class="br-card positive">
+                <div class="br-label">Positive</div>
+                <div class="br-value">{{ batch_results.sentiment_distribution[0] }}</div>
+            </div>
+            <div class="br-card neutral">
+                <div class="br-label">Neutral</div>
+                <div class="br-value">{{ batch_results.sentiment_distribution[1] }}</div>
+            </div>
+            <div class="br-card negative">
+                <div class="br-label">Negative</div>
+                <div class="br-value">{{ batch_results.sentiment_distribution[2] }}</div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: center; margin: 36px 0 24px 0;">
+            <div class="br-chart-card" style="min-width:340px; max-width:440px; width:100%;">
+                <div class="br-chart-title">Sentiment Distribution</div>
+                <div id="sentimentPie" style="width:100%;height:320px;"></div>
+            </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="charts" role="tabpanel" aria-labelledby="charts-tab">
+        <div class="br-charts-row">
+            <div class="br-chart-card">
+                <div class="br-chart-title">Sentiment Distribution</div>
+                <div id="sentimentPie" style="width:100%;height:320px;"></div>
+            </div>
+            <div class="br-chart-card">
+                <div class="br-chart-title">Emotion Distribution</div>
+                <div id="emotionBar" style="width:100%;height:320px;"></div>
+            </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="table" role="tabpanel" aria-labelledby="table-tab">
+        <div class="br-table-section">
+            <div class="br-table-title">Detailed Results</div>
+            <div class="br-table-wrap">
+                <table class="br-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Text</th>
+                            <th>Sentiment</th>
+                            <th>Emotions</th>
+                            <th>Emojis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in batch_results.results %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="br-text-cell" title="{{ result.text }}">{{ result.text }}</td>
+                            <td>
+                                <span class="br-badge {{ result.sentiment }}">{{ result.sentiment|capitalize }}</span>
+                            </td>
+                            <td>
+                                {% for emotion in result.emotions %}
+                                <span class="br-badge emotion">{{ emotion }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <div class="br-emoji-list">
+                                    {% for emoji in result.emojis %}
+                                    <span class="br-emoji-item">{{ emoji.emoji }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+        <a href="{{ url_for('batch') }}" class="br-back-btn"><i class="fas fa-arrow-left"></i> Back to Batch Analysis</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if batch_results and batch_results.results and batch_results.results|length > 0 %}
+<script>
+    // Only render charts when the charts tab is shown
+    let chartsRendered = false;
+    function renderCharts() {
+        if (chartsRendered) return;
+        Plotly.newPlot('sentimentPie', [{
+            type: 'pie',
+            labels: ['Positive', 'Neutral', 'Negative'],
+            values: [
+                {{ batch_results.sentiment_distribution[0] }},
+                {{ batch_results.sentiment_distribution[1] }},
+                {{ batch_results.sentiment_distribution[2] }}
+            ],
+            marker: { colors: ['#00bfae', '#ffc107', '#dc3545'] },
+            textinfo: 'label+percent',
+            insidetextorientation: 'radial'
+        }], {
+            height: 320,
+            showlegend: true,
+            legend: { orientation: 'h', y: -0.2, font: { size: 12 } },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        });
+        Plotly.newPlot('emotionBar', [{
+            type: 'bar',
+            x: {{ batch_results.emotion_distribution.keys() | list | tojson }},
+            y: {{ batch_results.emotion_distribution.values() | list | tojson }},
+            marker: { color: '#00bfae' }
+        }], {
+            height: 320,
+            xaxis: { title: 'Emotion', tickangle: -45, titlefont: { size: 12 } },
+            yaxis: { title: 'Count', titlefont: { size: 12 } },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        });
+        chartsRendered = true;
+    }
+    document.getElementById('charts-tab').addEventListener('shown.bs.tab', renderCharts);
+    // Optionally, render charts immediately if you want them on first load
+    // renderCharts();
+</script>
+{% endif %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

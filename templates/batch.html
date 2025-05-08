@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Analysis - SentimentScope{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Base Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e0f7fa 100%);
+        min-height: 100vh;
+    }
+
+    /* Header Styles */
+    .header {
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #00bfae;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .logo i {
+        font-size: 1.8rem;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+    }
+
+    .nav-link {
+        color: #263238;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .nav-link:hover {
+        color: #00bfae;
+        background: #e0f7fa;
+    }
+
+    .nav-link.active {
+        color: #00bfae;
+        background: #e0f7fa;
+    }
+
+    .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .user-name {
+        color: #263238;
+        font-weight: 500;
+    }
+
+    .logout-btn {
+        color: #c62828;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+        background: #ffebee;
+    }
+
+    /* Main Content Styles */
+    .batch-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .batch-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(44,83,100,0.08);
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+
+    .batch-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .batch-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #263238;
+        margin-bottom: 12px;
+    }
+
+    .batch-header p {
+        color: #607d8b;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Analysis Grid */
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .analysis-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(44,83,100,0.08);
+        padding: 32px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .analysis-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(44,83,100,0.12);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .card-icon {
+        width: 48px;
+        height: 48px;
+        background: #e0f7fa;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+    }
+
+    .card-icon i {
+        font-size: 1.5rem;
+        color: #00bfae;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #263238;
+        margin: 0;
+    }
+
+    /* Upload Area */
+    .upload-area {
+        border: 2px dashed #e0e7ff;
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #f8fafc;
+    }
+
+    .upload-area:hover {
+        border-color: #00bfae;
+        background: #f0f9f8;
+    }
+
+    .upload-area i {
+        font-size: 2.5rem;
+        color: #00bfae;
+        margin-bottom: 16px;
+    }
+
+    .upload-text {
+        color: #607d8b;
+        margin-bottom: 16px;
+    }
+
+    .upload-hint {
+        font-size: 0.9rem;
+        color: #90a4ae;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    /* Text Area */
+    .text-area {
+        width: 100%;
+        min-height: 200px;
+        padding: 16px;
+        border: 1.5px solid #e0e7ff;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: #263238;
+        background: #f8fafc;
+        resize: vertical;
+        transition: all 0.3s;
+    }
+
+    .text-area:focus {
+        outline: none;
+        border-color: #00bfae;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(0,191,174,0.1);
+    }
+
+    /* Buttons */
+    .analyze-btn {
+        width: 100%;
+        background: #00bfae;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 24px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .analyze-btn:hover {
+        background: #008e76;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,191,174,0.2);
+    }
+
+    .analyze-btn i {
+        font-size: 1.2rem;
+    }
+
+    /* Alerts */
+    .alert {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .alert i {
+        font-size: 1.2rem;
+    }
+
+    .alert-error {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
+    }
+
+    .alert-success {
+        background: #e0f7fa;
+        color: #008e76;
+        border: 1px solid #b2ebf2;
+    }
+
+    .form-error {
+        color: #c62828;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        display: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-container {
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .nav-links {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .user-menu {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .analysis-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .batch-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .batch-header p {
+            font-size: 1rem;
+        }
+
+        .batch-card {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="header">
+    <div class="header-container">
+        <a href="{{ url_for('dashboard') }}" class="logo">
+            <i class="fas fa-chart-line"></i>
+            SentimentScope
+        </a>
+        <nav class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{{ url_for('batch') }}" class="nav-link active">
+                <i class="fas fa-file-upload"></i> Batch Analysis
+            </a>
+            <a href="{{ url_for('visualize') }}" class="nav-link">
+                <i class="fas fa-chart-bar"></i> Visualizations
+            </a>
+            <a href="{{ url_for('services') }}" class="nav-link">
+                <i class="fas fa-cogs"></i> Services
+            </a>
+            <a href="{{ url_for('contact') }}" class="nav-link">
+                <i class="fas fa-envelope"></i> Contact
+            </a>
+        </nav>
+        <div class="user-menu">
+            <span class="user-name">
+                <i class="fas fa-user"></i> {{ session.username }}
+            </span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="batch-container">
+    <div class="batch-card">
+        <div class="batch-header">
+            <h1>Batch Sentiment Analysis</h1>
+            <p>Analyze multiple texts at once by uploading a file or pasting text directly. Get instant insights into sentiment and emotions across your content.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="analysis-grid">
+            <div class="analysis-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <h3 class="card-title">Upload File</h3>
+                </div>
+                <form method="POST" action="{{ url_for('analyze_batch') }}" enctype="multipart/form-data" id="fileForm">
+                    <label class="upload-area" for="fileInput">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="upload-text">Drag and drop your file here or click to browse</div>
+                        <div class="upload-hint">Supported formats: CSV, TXT (one text per line)</div>
+                        <input type="file" class="file-input" id="fileInput" name="file" accept=".txt,.csv" required onchange="updateFileName(this)">
+                    </label>
+                    <div id="file-name" class="upload-hint" style="margin-top: 12px;">No file chosen</div>
+                    <div id="file-error" class="form-error">Please select a file</div>
+                    <button type="submit" class="analyze-btn" id="uploadBtn">
+                        <i class="fas fa-upload"></i>
+                        Upload & Analyze
+                    </button>
+                </form>
+            </div>
+
+            <div class="analysis-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-paste"></i>
+                    </div>
+                    <h3 class="card-title">Paste Text</h3>
+                </div>
+                <form method="POST" action="{{ url_for('analyze_batch') }}" id="textForm">
+                    <textarea class="text-area" id="textInput" name="text" placeholder="Enter your texts here (one per line)..." required></textarea>
+                    <div id="text-error" class="form-error">Please enter some text</div>
+                    <button type="submit" class="analyze-btn" id="analyzeBtn">
+                        <i class="fas fa-search"></i>
+                        Analyze Text
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateFileName(input) {
+    const fileName = input.files[0] ? input.files[0].name : 'No file chosen';
+    document.getElementById('file-name').textContent = fileName;
+    document.getElementById('file-error').style.display = 'none';
+}
+
+// Form validation
+document.getElementById('fileForm').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput.files || !fileInput.files[0]) {
+        e.preventDefault();
+        document.getElementById('file-error').style.display = 'block';
+    }
+});
+
+document.getElementById('textForm').addEventListener('submit', function(e) {
+    const textInput = document.getElementById('textInput');
+    if (!textInput.value.trim()) {
+        e.preventDefault();
+        document.getElementById('text-error').style.display = 'block';
+    }
+});
+
+// Drag and drop functionality
+const uploadArea = document.querySelector('.upload-area');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    uploadArea.classList.add('highlight');
+}
+
+function unhighlight(e) {
+    uploadArea.classList.remove('highlight');
+}
+
+uploadArea.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    fileInput.files = files;
+    updateFileName(fileInput);
+}
+</script>
+{% endblock %} 
